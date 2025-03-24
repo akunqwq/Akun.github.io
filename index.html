@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue日期倒计时</title>
+    <script src="vue3.js"></script>
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('93878000_p0.png');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+             filter: blur(1px);/*高斯模糊 */
+             z-index: -1;/*将背景置于其他内容下 */
+        }
+        .countdown-container{  
+            text-align: center;
+            font-size: 5rem;
+            font-weight: bold;
+            color: #b7deff;
+        }
+        .countdown-container span {
+            margin: 0 10px;
+        }
+        .countdown-header{
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight:normal;
+            font-weight: bold;
+            color: #ffa8fd;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="countdown-container">
+            <div class="countdown-header">
+                距离放假还有 {{timeLeft.days}} 天
+            </div>
+            <div>
+                <span>{{timeLeft.days}} 天</span>
+                <span>{{timeLeft.hours}} 时</span>
+                <span>{{timeLeft.minutes}} 分</span>
+                <span>{{timeLeft.seconds}} 秒</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        const { createApp, ref ,onMounted, onBeforeUnmount } = Vue;
+        
+        const CountdownTimer = {
+            setup() {
+                const timeLeft = ref({
+                    days: 0,
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0,
+                });
+
+                const targetDate =new Date('2025-04-04T00:00:00');//设置倒计时目标时间
+                let timer;
+
+                const updateTimeLeft= () => {
+                    const now = new Date();
+                    const diffInSecond = Math.floor((targetDate - now) /1000);
+                
+                    if (diffInSecond <= 0 ){
+                        clearInterval(timer);
+                        timeLeft.value = { days: 0, hours: 0, minutes: 0, seconds: 0};
+                        return;
+                    }
+
+                    timeLeft.value = {
+                        days: Math.floor(diffInSecond /(24 * 60 * 60)),
+                        hours: Math.floor((diffInSecond %(24 * 60 * 60)) / (60 * 60)),
+                        minutes: Math.floor((diffInSecond % (60 * 60)) / 60),
+                        seconds: diffInSecond % 60,
+                    };
+                };
+
+                onMounted(() =>{
+                    updateTimeLeft();
+                    timer =setInterval(updateTimeLeft,1000);
+                });
+
+                onBeforeUnmount(() => {
+                    clearInterval(timer);
+                });
+
+                return { timeLeft };
+            },
+            template: `
+                <div class="countdown-container">
+            <div class="countdown-header">
+                距离放假还有 {{timeLeft.days}} 天
+            </div>
+            <div>
+                <span>{{timeLeft.days}} 天</span>
+                <span>{{timeLeft.hours}} 时</span>
+                <span>{{timeLeft.minutes}} 分</span>
+                <span>{{timeLeft.seconds}} 秒</span>
+            </div>
+        </div>
+                `
+        };
+
+        createApp(CountdownTimer).mount('#app');
+    </script>
+</body>
+</html>
